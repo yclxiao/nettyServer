@@ -1,5 +1,6 @@
 package com.socket.echo;
 
+import com.socket.echo.bean.DeviceMsg;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -9,6 +10,8 @@ import io.netty.channel.*;
  */
 @ChannelHandler.Sharable
 public class EchoServerHandler extends SimpleChannelInboundHandler<Object> {
+
+    private static boolean isLogin = false;
 
     //读取通道内容
 //    @Override
@@ -39,7 +42,7 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<Object> {
 //        ctx.writeAndFlush("7B090019313339313233343536373801030402EA00A25BC67B");
 
         //比如这是每隔5S发送心跳
-        new Thread(new Runnable() {
+        /*new Thread(new Runnable() {
             @Override
             public void run() {
                 while (true){
@@ -51,19 +54,45 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<Object> {
                     ctx.writeAndFlush("7B090019313339313233343536373801030402EA00A25BC67B");
                 }
             }
-        }).start();
+        }).start();*/
+
 
         //比如这是每隔1小时去获取湿度、温度
         new Thread(new Runnable() {
             @Override
             public void run() {
                 while (true){
+
                     try {
-                        Thread.sleep(1000 * 60 * 60);
+                        Thread.sleep(1000 * 5);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    ctx.writeAndFlush("7B090019313339313233343536373801030402EA00A25BC67B");
+
+                    if (isLogin) {
+
+                        //发送温度湿度
+                        ctx.writeAndFlush("7B8900183133393132333435363738010300000002C40B7B");
+                        System.out.println("temperature/humidity send end...");
+
+                        try {
+                            Thread.sleep(1000 * 20);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        //发送水表
+                        ctx.writeAndFlush("7B890018313339313233343536373818030000000446007B");
+                        System.out.println("waterMeter send end...");
+
+
+                        try {
+                            Thread.sleep(1000 * 60 * 60);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
                 }
             }
         }).start();
@@ -98,8 +127,30 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<Object> {
 //        String body = new String(req,"UTF-8");
 
 
-        System.out.println("服务器收到:" + msg);
+//        System.out.println("服务器收到:" + msg);
 //        ctx.writeAndFlush("hello server\r\n");
+
+
+        DeviceMsg deviceMsg = (DeviceMsg) msg;
+
+        int msgType = deviceMsg.getMsgType();
+        int temperature = deviceMsg.getTemperature();
+        int humidity = deviceMsg.getHumidity();
+        String waterMeter = deviceMsg.getWaterMeter();
+
+        if (msgType == 1){
+            ctx.writeAndFlush("7B81001031333931323334353637387B");
+            isLogin = true;
+
+            System.out.println("login response end...");
+
+        } else if (msgType == 2){
+            //TODO , 温度湿度入库
+            System.out.println("temperature:" + temperature + ",humidity:" + humidity + ",into db...");
+        } else if (msgType == 3){
+            //TODO , 水表入库
+            System.out.println("waterMeter:" + waterMeter + ",into db...");
+        }
 
     }
 }
