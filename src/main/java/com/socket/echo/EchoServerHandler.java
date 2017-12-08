@@ -5,6 +5,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 
+import java.util.Date;
+
 /**
  * Created by zhangjinye on 2017/11/26.
  */
@@ -142,14 +144,14 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<Object> {
             ctx.writeAndFlush("7B81001031333931323334353637387B");
             isLogin = true;
 
-            System.out.println("login response end...");
+            System.out.println(new Date() + ",login response end...");
 
         } else if (msgType == 2){
             //TODO , 温度湿度入库
-            System.out.println("temperature:" + temperature + ",humidity:" + humidity + ",into db...");
+            System.out.println(new Date() + ",temperature:" + temperature + ",humidity:" + humidity + ",into db...");
         } else if (msgType == 3){
             //TODO , 水表入库
-            System.out.println("waterMeter:" + waterMeter + ",into db...");
+            System.out.println(new Date() + ",waterMeter:" + waterMeter + ",into db...");
         }
 
     }
