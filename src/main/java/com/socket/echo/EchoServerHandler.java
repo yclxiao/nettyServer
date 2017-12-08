@@ -75,7 +75,7 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<Object> {
 
                         //发送温度湿度
                         ctx.writeAndFlush("7B8900183133393132333435363738010300000002C40B7B");
-                        System.out.println("temperature/humidity send end...");
+                        System.out.println(new Date() + ",temperature/humidity send ...");
 
                         try {
                             Thread.sleep(1000 * 20);
@@ -85,7 +85,7 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<Object> {
 
                         //发送水表
                         ctx.writeAndFlush("7B890018313339313233343536373818030000000446007B");
-                        System.out.println("waterMeter send end...");
+                        System.out.println(new Date() + ",waterMeter send ...");
 
 
                         try {
@@ -144,7 +144,11 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<Object> {
             ctx.writeAndFlush("7B81001031333931323334353637387B");
             isLogin = true;
 
-            System.out.println(new Date() + ",login response end...");
+            System.out.println(new Date() + ",login response ...");
+
+            Thread.sleep(5000);
+            ctx.writeAndFlush("7B83001031333931323334353637387B");
+            System.out.println(new Date() + ",debug response ...,debug info:7B83001031333931323334353637387B");
 
         } else if (msgType == 2){
             //TODO , 温度湿度入库
